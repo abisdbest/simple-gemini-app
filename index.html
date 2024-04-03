@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gemini AI Example</title>
 <script src="//cdn.jsdelivr.net/npm/eruda#gimkit"></script>
-<script>eruda.init();</script>
+    <script>eruda.init();</script>
 <script type="importmap">
 {
   "imports": {
-    "@google/generative-ai": "https://esm.run/@google/generative-ai"
+    "@google/generative-ai": "https://esm.run/@google/generative-ai#classroom.google.com"
   }
 }
 </script>
@@ -25,20 +25,9 @@
   async function sendMessage() {
     const prompt = document.getElementById('messageInput').value;
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
-    // Set headers to indicate request is from America
-    const headers = new Headers();
-    headers.append('X-Geo-Location', 'America');
-    
-    // Fetch the response with custom headers
-    const result = await fetch(model.endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ prompt })
-    });
-    
-    const response = await result.json();
-    const text = response.text;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
     document.getElementById('response').innerText = text;
   }
   
