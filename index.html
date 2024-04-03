@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini AI Example</title>
+<script src="//cdn.jsdelivr.net/npm/eruda#gimkit"></script>
+<script>eruda.init();</script>
+<script type="importmap">
+{
+  "imports": {
+    "@google/generative-ai": "https://esm.run/@google/generative-ai"
+  }
+}
+</script>
+<script type="module">
+  import { GoogleGenerativeAI } from "@google/generative-ai";
+  
+  // Access your API key
+  const API_KEY = "AIzaSyDVDYqvGiu1VVH7o2k9XCM5WNZUJpcQuGs";
+  
+  // Initialize Generative Model
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  
+  async function sendMessage() {
+    const prompt = document.getElementById('messageInput').value;
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    // Set headers to indicate request is from America
+    const headers = new Headers();
+    headers.append('X-Geo-Location', 'America');
+    
+    // Fetch the response with custom headers
+    const result = await fetch(model.endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ prompt })
+    });
+    
+    const response = await result.json();
+    const text = response.text;
+    document.getElementById('response').innerText = text;
+  }
+  
+  // Make sendMessage accessible globally
+  window.sendMessage = sendMessage;
+</script>
+</head>
+<body>
+  <h1>Gemini AI Example</h1>
+  <div>
+    <label for="messageInput">Enter your message:</label>
+    <input type="text" id="messageInput" />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <div>
+    <h2>Response:</h2>
+    <p id="response"></p>
+  </div>
+</body>
+</html>
