@@ -3,48 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gemini AI Example</title>
-<script src="//cdn.jsdelivr.net/npm/eruda#gimkit"></script>
-    <script>eruda.init();</script>
-<script type="importmap">
-{
-  "imports": {
-    "@google/generative-ai": "https://esm.run/@google/generative-ai#classroom.google.com"
-  }
-}
-</script>
-<script type="module">
-  import { GoogleGenerativeAI } from "@google/generative-ai";
-  
-  // Access your API key
-  const API_KEY = "AIzaSyDVDYqvGiu1VVH7o2k9XCM5WNZUJpcQuGs";
-  
-  // Initialize Generative Model
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  
-  async function sendMessage() {
-    const prompt = document.getElementById('messageInput').value;
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    document.getElementById('response').innerText = text;
-  }
-  
-  // Make sendMessage accessible globally
-  window.sendMessage = sendMessage;
-</script>
+<title>Gemini AI Client</title>
 </head>
 <body>
-  <h1>Gemini AI Example</h1>
+  <h1>Gemini AI Client</h1>
   <div>
     <label for="messageInput">Enter your message:</label>
     <input type="text" id="messageInput" />
     <button onclick="sendMessage()">Send</button>
   </div>
   <div>
-    <h2>Response:</h2>
-    <p id="response"></p>
+    <h2>Conversation:</h2>
+    <ul id="conversation"></ul>
   </div>
+
+  <script>
+    // Array to store previous messages and responses
+    let conversation = [];
+
+    async function sendMessage() {
+      const messageInput = document.getElementById('messageInput');
+      const message = messageInput.value;
+      const conversationList = document.getElementById('conversation');
+      
+      try {
+        // Add user's message to the conversation list
+        const userMessageItem = document.createElement('li');
+        userMessageItem.textContent = `You: ${message}`;
+        conversationList.appendChild(userMessageItem);
+        
+        // Send message and conversation to the server
+        const response = await fetch('https://gemini-server-vu25.onrender.com/sendMessage', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: message, conversation: conversation })
+        });
+        
+        // Parse response from the server
+        const responseData = await response.json();
+        
+        // Add server's response to the conversation list
+        const aiResponseItem = document.createElement('li');
+        aiResponseItem.textContent = `AI: ${responseData.response}`;
+        conversationList.appendChild(aiResponseItem);
+        
+        // Clear message input
+        messageInput.value = '';
+        
+        // Update conversation array with server's response
+        conversation.push({ user: message, ai: responseData.response });
+      } catch (error) {
+        console.error('Error:', error);
+        conversationList.innerHTML += '<li>An error occurred. Please try again later.</li>';
+      }
+    }
+
+    // Function to populate conversation list with previous messages and responses
+    function populateConversation() {
+      const conversationList = document.getElementById('conversation');
+      conversation.forEach(item => {
+        const userMessageItem = document.createElement('li');
+        userMessageItem.textContent = `You: ${item.user}`;
+        conversationList.appendChild(userMessageItem);
+
+        const aiResponseItem = document.createElement('li');
+        aiResponseItem.textContent = `AI: ${item.ai}`;
+        conversationList.appendChild(aiResponseItem);
+      });
+    }
+
+    // Populate conversation list on page load
+    populateConversation();
+  </script>
 </body>
 </html>
