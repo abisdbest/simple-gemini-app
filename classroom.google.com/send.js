@@ -52,13 +52,13 @@ function populateConversation() {
   conversation.forEach(item => {
     const userMessageItem = document.createElement('div');
     userMessageItem.textContent = `You: ${item.user}`;
+    userMessageItem.className = "usermsg";
     conversationList.appendChild(userMessageItem);
-    userMessageItem.classList.add("usermsg");
 
     const aiResponseItem = document.createElement('li');
     aiResponseItem.textContent = `AI: ${item.ai}`;
+    aiResponseItem.className = "aimsg";
     conversationList.appendChild(aiResponseItem);
-    aiResponseItem.classList.add("aimsg");
   });
 }
 
