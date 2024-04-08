@@ -5,6 +5,13 @@ form = document.getElementById('form')
 
 form.addEventListener('submit', sendMessage());
 
+var converter = new showdown.Converter(); // Preview the markdown 
+
+function convert_markdown(mdtext) {
+    var html = converter.makeHtml(mdtext);
+    return html;
+}
+
 async function sendMessage() {
   const messageInput = document.getElementById('messageInput');
   const message = messageInput.value;
@@ -32,7 +39,9 @@ async function sendMessage() {
     
     // Add server's response to the conversation list
     const aiResponseItem = document.createElement('li');
-    aiResponseItem.textContent = `AI: ${responseData.response}`;
+    aiResponseItem.className = "aimsg";
+    const ai_response = convert_markdown(responseData.response)
+    aiResponseItem.innerHTML = ai_response;
     conversationList.appendChild(aiResponseItem);
     
     // Clear message input
